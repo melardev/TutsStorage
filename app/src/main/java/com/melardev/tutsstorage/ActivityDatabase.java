@@ -19,6 +19,7 @@ import com.melardev.tutsstorage.model.User;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -29,6 +30,7 @@ public class ActivityDatabase extends AppCompatActivity {
     private EditText etxtNameExisting;
     private EditText etxtId;
     private RecyclerView recUsers;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,8 @@ public class ActivityDatabase extends AppCompatActivity {
         etxtName = (EditText) findViewById(R.id.etxtName);
         etxtNameExisting = (EditText) findViewById(R.id.etxtNameExisting);
         etxtId = (EditText) findViewById(R.id.etxtId);
+
+        dbHelper = DBHelper.getInstance(getApplicationContext());
 
         recUsers = (RecyclerView) findViewById(R.id.recUsers);
         LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -50,31 +54,32 @@ public class ActivityDatabase extends AppCompatActivity {
         String name = etxtNameExisting.getText().toString();
 
         if (!TextUtils.isEmpty(id) && !TextUtils.isEmpty(name)) {
-            DBHelper.getInstance(getApplicationContext()).renameItem(id, name);
-            //DBHelper.getInstance(getApplicationContext()).renameItem(DBHelper.getInstance(getApplicationContext()).getUserWithId(id));
+            dbHelper.renameItem(id, name);
+            //dbHelper.renameItem(dbHelper.getUserWithId(id));
         }
     }
 
     public void addUser(View view) {
         String userName = etxtName.getText().toString();
         if (!TextUtils.isEmpty(userName))
-            DBHelper.getInstance(getApplicationContext()).addUser(userName);
+            dbHelper.addUser(userName);
     }
 
     public void deleteDB(View view) {
-        if (deleteDatabase(DBHelper.DB_NAME))
-            recUsers.getAdapter().notifyDataSetChanged();
+        dbHelper.deleteInstance();
     }
 
     private class RecUsersAdapter extends RecyclerView.Adapter<UserViewHolder> implements DBHelper.OnDatabaseChangedListener {
         private final ActivityDatabase context;
         private final LinearLayoutManager llm;
+        private ArrayList<User> users;
 
         public RecUsersAdapter(ActivityDatabase activityDatabase, LinearLayoutManager llm) {
             this.llm = llm;
             this.context = activityDatabase;
 
-            DBHelper.getInstance(activityDatabase.getApplicationContext()).setOnDatabaseChangedListener(this);
+            dbHelper.setOnDatabaseChangedListener(this);
+            users = dbHelper.getAllUsers();
         }
 
 
@@ -87,9 +92,9 @@ public class ActivityDatabase extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final UserViewHolder holder, int position) {
 
-            final User user = DBHelper.getInstance(context).getItemAt(position);
+            final User user = users.get(position);
             holder.txtUserName.setText(user.getName());
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             String date = sdf.format(new Date(user.getTime()));
             holder.txtTime.setText(date);
 
@@ -104,8 +109,7 @@ public class ActivityDatabase extends AppCompatActivity {
             holder.imgDeleteRow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    DBHelper.getInstance(getApplicationContext()).deleteUser(user.getId());
+                    dbHelper.deleteUser(user.getId());
                 }
             });
 
@@ -114,23 +118,38 @@ public class ActivityDatabase extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return DBHelper.getInstance(context.getApplicationContext()).getCount();
+            if (users == null)
+                return 0;
+            return users.size();
         }
 
         @Override
         public void onNewDatabaseEntryAdded() {
-            notifyItemInserted(getItemCount() - 1);
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    llm.scrollToPosition(getItemCount() - 1);
-
-                }
-            });
+            if (users == null) {
+                //If DB was deleted
+                users = dbHelper.getAllUsers();
+                notifyDataSetChanged();
+            } else {
+                users.add(dbHelper.getItemAt(users.size()));
+                notifyItemInserted(getItemCount() - 1);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        llm.scrollToPosition(getItemCount() - 1);
+                    }
+                });
+            }
         }
 
         @Override
         public void onDatabaseEntryRenamed() {
+            users = dbHelper.getAllUsers();
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onDatabaseDeleted() {
+            users = null;
             notifyDataSetChanged();
         }
     }

@@ -10,24 +10,82 @@ import android.widget.Toast;
 
 import com.melardev.tutsstorage.model.User;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 
 /**
  * Created by melardev on 2/12/2017.
  */
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final String COL_ID = "_id";
-    private static final String COL_NAME = "file_name";
+    public static final String COL_ID = "_id";
+    public static final String COL_NAME = "file_name";
 
     private static final String COL_TIME_ADDED = "time_added";
-    static final String TB_NAME = "recordings";
+    static final String TB_NAME = "tb_names";
     static final String DB_NAME = "db_names";
     private static final int DB_VERSION = 1;
     private static OnDatabaseChangedListener mOnDatabaseChangedListener;
     private static DBHelper mInstance;
+    private final Context mContext;
 
-    public void getAllUsers() {
+    public interface OnDatabaseChangedListener {
+        void onNewDatabaseEntryAdded();
 
+        void onDatabaseEntryRenamed();
+
+        void onDatabaseDeleted();
+    }
+
+    private DBHelper(Context mContext) {
+        super(mContext, DB_NAME, null, DB_VERSION);
+        this.mContext = mContext;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TB_NAME + " ("
+                + COL_ID + " INTEGER PRIMARY KEY,"
+                + COL_NAME + " TEXT,"
+                + COL_TIME_ADDED + " UNSIGNED BIG INT)");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        //Approach 1
+        switch (oldVersion) {
+            case 1:
+                sqLiteDatabase.execSQL("ALTER TABLE " + TB_NAME + " ADD extra_col_1 INTEGER");
+                break;
+            case 2:
+                sqLiteDatabase.execSQL("ALTER TABLE " + TB_NAME + " ADD extra_col_1 INTEGER");
+                sqLiteDatabase.execSQL("ALTER TABLE " + TB_NAME + " ADD extra_col_2 INTEGER");
+                break;
+        }
+
+        //Approach 2
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TB_NAME);
+        onCreate(sqLiteDatabase);
+    }
+
+    public ArrayList<User> getAllUsers() {
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TB_NAME, new String[]{COL_ID, COL_NAME, COL_TIME_ADDED}, null, null, null, null, null, null);
+        ArrayList<User> users = new ArrayList<>();
+        if (!cursor.moveToFirst())
+            return null;
+        do {
+            User user = new User();
+            user.setId(cursor.getInt(cursor.getColumnIndex(COL_ID)));
+            user.setName(cursor.getString(cursor.getColumnIndex(COL_NAME)));
+            user.setTime(cursor.getLong(cursor.getColumnIndex(COL_TIME_ADDED)));
+            users.add(user);
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        return users;
     }
 
     public User getUserWithId(String id) {
@@ -38,7 +96,7 @@ public class DBHelper extends SQLiteOpenHelper {
             User item = new User();
             item.setId(c.getInt(c.getColumnIndex(COL_ID)));
             item.setName(c.getString(c.getColumnIndex(COL_NAME)));
-            item.setTime(c.getInt(c.getColumnIndex(COL_TIME_ADDED)));
+            item.setTime(c.getLong(c.getColumnIndex(COL_TIME_ADDED)));
             c.close();
             return item;
         }
@@ -65,41 +123,29 @@ public class DBHelper extends SQLiteOpenHelper {
         if (rowsAffected == 1 && mOnDatabaseChangedListener != null) {
             mOnDatabaseChangedListener.onDatabaseEntryRenamed();
         }
-
     }
 
-    public void deleteDatabase() {
-
+    public void deleteInstance() {
+        close();
+        mContext.deleteDatabase(DB_NAME);
+        mInstance = null;
+        if (mOnDatabaseChangedListener != null)
+            mOnDatabaseChangedListener.onDatabaseDeleted();
     }
 
-    public interface OnDatabaseChangedListener {
-        void onNewDatabaseEntryAdded();
-
-        void onDatabaseEntryRenamed();
-    }
-
-    private DBHelper(Context mContext) {
-        super(mContext, DB_NAME, null, DB_VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TB_NAME + " ("
-                + COL_ID + " INTEGER PRIMARY KEY,"
-                + COL_NAME + " TEXT,"
-                + COL_TIME_ADDED + " INTEGER)");
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-
+    public void removeItemWithId(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        String[] whereArgs = {COL_ID};
+        db.delete(TB_NAME, COL_ID + "=?", whereArgs);
+        //db.delete(TB_NAME, COL_ID + "=" + id,null);
     }
 
     public long addUser(String userName) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COL_NAME, userName);
-        cv.put(COL_TIME_ADDED, System.currentTimeMillis());
+        Log.d("DB", String.valueOf(System.currentTimeMillis()));
+        cv.put(COL_TIME_ADDED, new Date().getTime());
         long rowId = db.insert(TB_NAME, null, cv);
         if (mOnDatabaseChangedListener != null)
             mOnDatabaseChangedListener.onNewDatabaseEntryAdded();
@@ -120,7 +166,7 @@ public class DBHelper extends SQLiteOpenHelper {
             User item = new User();
             item.setId(c.getInt(c.getColumnIndex(COL_ID)));
             item.setName(c.getString(c.getColumnIndex(COL_NAME)));
-            item.setTime(c.getInt(c.getColumnIndex(COL_TIME_ADDED)));
+            item.setTime(c.getLong(c.getColumnIndex(COL_TIME_ADDED)));
             c.close();
             return item;
         }
@@ -134,13 +180,6 @@ public class DBHelper extends SQLiteOpenHelper {
         int count = c.getCount();
         c.close();
         return count;
-    }
-
-    public void removeItemWithId(int id) {
-        SQLiteDatabase db = getWritableDatabase();
-        String[] whereArgs = {COL_ID};
-        db.delete(TB_NAME, COL_ID + "=?", whereArgs);
-        //db.delete(TB_NAME, COL_ID + "=" + id,null);
     }
 
 

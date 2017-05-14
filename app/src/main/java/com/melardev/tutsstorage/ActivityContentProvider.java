@@ -5,6 +5,9 @@ import android.os.Bundle;
 
 public class ActivityContentProvider extends AppCompatActivity {
 
+    //https://developer.android.com/guide/components/fundamentals.html#Components
+    //content://authority/optionalPath/optionalId
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

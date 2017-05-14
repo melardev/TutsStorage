@@ -7,7 +7,7 @@ package com.melardev.tutsstorage.model;
 public class User {
     public String name;
     private int id;
-    private int time;
+    private long time;
 
     public void setId(int id) {
         this.id = id;
@@ -17,7 +17,7 @@ public class User {
         this.name = name;
     }
 
-    public void setTime(int time) {
+    public void setTime(long time) {
         this.time = time;
     }
 
@@ -29,7 +29,7 @@ public class User {
         return name;
     }
 
-    public int getTime() {
+    public long getTime() {
         return time;
     }
 }
