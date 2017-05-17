@@ -26,4 +26,8 @@ public class MainActivity extends AppCompatActivity {
     public void sharedPreferencesDemo(View view) {
         startDemo(SharedPreferencesDemo.class);
     }
+
+    public void contentProviderDemo(View view) {
+        startDemo(ActivityContentProvider.class);
+    }
 }

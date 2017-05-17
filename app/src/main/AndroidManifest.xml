@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.melardev.tutsstorage">
 
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,7 +19,15 @@
         </activity>
         <activity android:name=".ActivityDatabase" />
         <activity android:name=".ActivityContentProvider" />
-        <activity android:name=".SharedPreferencesDemo"></activity>
+        <activity android:name=".SharedPreferencesDemo" />
+
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="com.melardev.tutsstorage.MyContentProvider"
+            android:enabled="true"
+            android:exported="true">
+            <!-- You have to export it explicitly since Android 4.2-->
+        </provider>
     </application>
 
 </manifest>

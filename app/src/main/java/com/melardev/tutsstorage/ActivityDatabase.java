@@ -86,7 +86,6 @@ public class ActivityDatabase extends AppCompatActivity {
         @Override
         public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new UserViewHolder(context.getLayoutInflater().inflate(R.layout.user_row, parent, false));
-
         }
 
         @Override

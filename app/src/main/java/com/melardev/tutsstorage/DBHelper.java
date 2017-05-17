@@ -22,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "file_name";
 
-    private static final String COL_TIME_ADDED = "time_added";
+    public static final String COL_TIME_ADDED = "time_added";
     static final String TB_NAME = "tb_names";
     static final String DB_NAME = "db_names";
     private static final int DB_VERSION = 1;
