@@ -37,6 +37,29 @@
             android:layout_height="wrap_content"
             android:onClick="contentProviderDemo"
             android:text="ContentProvider Demo" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="filesStorageDemo"
+            android:text="Files storage demo"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="specialDirsDemo"
+            android:text="Assets RAW XML Demo"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="jsonDemo"
+            android:text="JSON Demo"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="xmlDemo"
+            android:text="XML Demo"/>
 
     </LinearLayout>
 </LinearLayout>

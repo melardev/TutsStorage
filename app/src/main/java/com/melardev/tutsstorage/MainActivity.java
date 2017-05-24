@@ -30,4 +30,20 @@ public class MainActivity extends AppCompatActivity {
     public void contentProviderDemo(View view) {
         startDemo(ActivityContentProvider.class);
     }
+
+    public void filesStorageDemo(View view) {
+        startDemo(ActivityFilesStorage.class);
+    }
+
+    public void specialDirsDemo(View view) {
+        startDemo(ActivityReadingFromApkDirs.class);
+    }
+
+    public void jsonDemo(View view) {
+        startDemo(ActivityJsonDemo.class);
+    }
+
+    public void xmlDemo(View view) {
+        startDemo(ActivityXMLDemo.class);
+    }
 }

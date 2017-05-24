@@ -1,0 +1,20 @@
+[
+  {
+    "country": "ES",
+    "name": "Madrid",
+    "lat": 40.5,
+    "lng": -3.666667
+  },
+  {
+    "country": "ES",
+    "name": "Valencia",
+    "lat": 39.466667,
+    "lng": -0.366667
+  },
+  {
+    "country": "ES",
+    "name": "Barcelona",
+    "lat": 41.398371,
+    "lng": 2.1741
+  }
+]

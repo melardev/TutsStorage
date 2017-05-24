@@ -3,6 +3,8 @@
     package="com.melardev.tutsstorage">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -26,8 +28,16 @@
             android:authorities="com.melardev.tutsstorage.MyContentProvider"
             android:enabled="true"
             android:exported="true">
-            <!-- You have to export it explicitly since Android 4.2-->
+
+            <!-- You have to export it explicitly since Android 4.2 -->
         </provider>
+
+        <activity android:name=".ActivityJsonDemo" />
+        <activity android:name=".ActivityFilesStorage" />
+        <activity android:name=".ActivityXMLDemo" />
+        <activity android:name=".ActivityReadingFromApkDirs" />
+        <activity android:name=".ActivityImplicitIntents" />
+        <activity android:name=".ActivityBasicDatabase"></activity>
     </application>
 
 </manifest>
